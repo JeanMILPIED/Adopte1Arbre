@@ -42,15 +42,14 @@ def page_Adopte():
     date_heure = result.strftime("%d/%m/%Y %H:%M:%S")
     st.text("Date et heure : " + date_heure)
 
-    # yourAdress = st.text_input("Renseigne une adresse (dans Paris)", value="", max_chars=None, key=None, type="default",
-    #                           help=None, autocomplete=None, on_change=None)
-    #
-    # if yourAdress != "":
-    #     finalAdress, gps_position = GPS_from_Adress(yourAdress)
-    #     st.write("l'adresse identifiée pour votre chantier est " + finalAdress)
-    # else:
-    #     gps_position=[]
-    gps_position=[48.855397247540466, 2.346641058380128]
+    yourAdress = st.text_input("Renseigne une adresse (dans Paris)", value="", max_chars=None, key=None, type="default",
+                              help=None, autocomplete=None, on_change=None)
+
+    if yourAdress != "":
+        finalAdress, gps_position = GPS_from_Adress(yourAdress)
+        st.write("l'adresse identifiée pour votre chantier est " + finalAdress)
+    else:
+        gps_position=[48.855397247540466, 2.346641058380128]
     col1, _, col2=st.columns([10,1,10])
 
     col1.subheader('Quel arbre adopter - step1')
@@ -82,17 +81,10 @@ def page_Adopte():
                 [distance([gps_position[0], gps_position[1]],
                           [df_arbre_select["lat"].iloc[i], df_arbre_select["lon"].iloc[i]]) for i in
                  range(df_arbre_select.shape[0])]
-            df_arbre_select_moinsde100m = df_arbre_select[df_arbre_select.distance_a_position <= 0.1]
-            df_arbre_select_moinsde500m = df_arbre_select[df_arbre_select.distance_a_position <= 0.5]
-            df_arbre_select_moinsde1000m = df_arbre_select[df_arbre_select.distance_a_position <= 1]
-            df_arbre_select_moinsde5000m = df_arbre_select[df_arbre_select.distance_a_position <= 5]
-            col2.write("{} à moins de 100m".format(df_arbre_select_moinsde100m.shape[0]))
-            col2.write(
-                "{} à moins de 500m".format(df_arbre_select_moinsde500m.shape[0]))
-            col2.write(
-                "{} à moins de 1km".format(df_arbre_select_moinsde1000m.shape[0]))
-            col2.write(
-                "{} à moins de 5km".format(df_arbre_select_moinsde5000m.shape[0]))
+            for select_dist in [0.1,0.5,1,5]:
+                df_arbre_select_moinsde=df_arbre_select[df_arbre_select.distance_a_position <= select_dist].shape[0]
+                if df_arbre_select_moinsde>0:
+                    col2.write("{} à moins de {}km".format(df_arbre_select_moinsde,select_dist))
             col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
             df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
     #
@@ -199,7 +191,7 @@ def page_Adopte():
     #             st.caption(
     #                 "Calculs CO2e effectués pour 25t de matière choisie à évacuer dans un camions 5 essieux => 1 seul trajet")
     #
-            st.subheader("La Carte 🗺")
+            st.subheader("La Carte des 🌳")
             map = create_map_opti(df_arbre_select, gps_position)
             folium_static(map)
     #         else:

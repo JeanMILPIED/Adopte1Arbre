@@ -114,7 +114,7 @@ def distance_osrm(place_1,place_2):
 def create_map_opti(df, gps_chantier, zoom100=False):
     m = folium.Map()
     for i in range(df.shape[0]):
-        folium.Marker([df["lat"].iloc[i], df["lon"].iloc[i]],  popup=("arbre"), icon = folium.Icon(color='green',icon='plus')).add_to(m)
+        folium.Marker([df["lat"].iloc[i], df["lon"].iloc[i]],  popup=("arbre {}".format(df["Emplacement - Identifiant unique"].iloc[i])), icon = folium.Icon(color='green',icon='plus')).add_to(m)
     if gps_chantier!=[]:
         folium.Marker([gps_chantier[0], gps_chantier[1]], popup=('votre position'),
                       icon=folium.Icon(color='black', icon='plus')).add_to(m)
