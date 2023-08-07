@@ -54,7 +54,7 @@ def page_Adopte():
     col1, _, col2=st.columns([10,1,10])
 
     col1.subheader('Quel arbre adopter ?')
-    
+
     df_arbre_select=df_arbre.copy()
     ma_date=col1.text_input("Votre date d'anniversaire Jour Mois (exemple: 20/06)",value="", max_chars=None, key=None, type="default",
                               help=None, autocomplete=None, on_change=None)
@@ -90,7 +90,7 @@ def page_Adopte():
     st.write("{} arbres correspondent aux critères".format(df_arbre_select.shape[0]))
 
     if (df_arbre_select.shape[0] > 0) and (options_rare != [] and options_essence != [] and options_taille != []) and gps_position != []:
-        col2.subheader("Où sont-ils ? - step2")
+        col2.subheader("Où sont-ils ? 🔍")
         # we compute distance to the chantier
         if gps_position != []:
             df_arbre_select["distance_a_position"] = \
@@ -224,7 +224,13 @@ def page_Adopte():
                 if mon_arbre.shape[0]>0:
                     col2.write("Voici l'adresse de votre arbre")
                     mon_arbre_adresse="{}, {} ({})".format(mon_arbre["Emplacement - Complément d'adresse"].iloc[0],mon_arbre["Emplacement - Site / Adresse"].iloc[0], mon_arbre["Emplacement - Arrondissement"].iloc[0])
-                    col2.write(mon_arbre_adresse)
+                    col2.subheader(mon_arbre_adresse)
+                    col2.write("Voici sa fiche d'identité")
+                    mon_arbre_id="{}, planté le {}, c'est un arbre {} et {}".format(mon_arbre["Arbre Essence - Nom français"].iloc[0],
+                                                                                    mon_arbre["Arbre Exploitation - Planté le"].iloc[0][:10],
+                                                                                    mon_arbre["rareOupas"].iloc[0],
+                                                                                    mon_arbre["classeTaille"].iloc[0])
+                    col2.subheader(mon_arbre_id)
                 else:
                     col2.write("Numéro d'arbre à vérifier")
     #         else:
