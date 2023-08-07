@@ -52,7 +52,7 @@ def page_Adopte():
         gps_position=[48.855397247540466, 2.346641058380128]
     col1, _, col2=st.columns([10,1,10])
 
-    col1.subheader('Quel arbre adopter - step1')
+    col1.subheader('Quel arbre adopter ?')
     options_taille = col1.multiselect(
         'Quelle taille ?', df_arbre.classeTaille.unique().tolist())
 
@@ -71,7 +71,7 @@ def page_Adopte():
         if select_essence!="":
             df_arbre_select=df_arbre_select[df_arbre_select.loc[:,"Arbre Essence - Nom français"]==select_essence]
 
-    st.write("{} arbres correspondent à vos critères".format(df_arbre_select.shape[0]))
+    st.write("{} arbres correspondent aux critères".format(df_arbre_select.shape[0]))
 
     if (df_arbre_select.shape[0] > 0) and (options_rare != [] and options_essence != [] and options_taille != []) and gps_position != []:
         col2.subheader("Où sont-ils ? - step2")
@@ -88,7 +88,7 @@ def page_Adopte():
             col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
             df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
 
-            col2.write("Voir la carte pour le détail des positions")
+            col2.write("Voir la carte pour le détail des positions et faire ton choix")
 
     #
     #         # les autres critères
@@ -219,7 +219,14 @@ def page_Adopte():
     #     st.write("Aucun Point de Reprise correspondant à vos critères. Elargissez votre recherche")
 
 def page_Decouvrir():
-    st.header("Découvre les arbres de Paris")
+    st.header("🌳 Découvre les arbres de Paris 🌲")
+    df_arbre = pd.read_csv('les-arbres-plantes-clean.csv', sep=';').dropna(subset=["Arbre Essence - Nom français"],axis=0)
+    st.write("il y a {} arbres plantés à ce jour".format(df_arbre.shape[0]))
+    col1,col2=st.columns(2)
+    col1.write("le détail par arrondissements")
+    col1.dataframe(df_arbre["Emplacement - Arrondissement"].value_counts())
+    col2.write("le détail par essences")
+    col2.dataframe(df_arbre["Arbre Essence - Nom français"].value_counts())
 
 #put all pages together
 page_names_to_funcs = {
