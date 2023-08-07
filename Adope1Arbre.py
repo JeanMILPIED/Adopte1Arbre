@@ -269,8 +269,8 @@ def page_Decouvrir():
 
 #put all pages together
 page_names_to_funcs = {
-    "Adopter": page_Adopte,
-    "Découvrir": page_Decouvrir}
+    " 🌳 Adopter": page_Adopte,
+    " 🌴 Découvrir": page_Decouvrir}
 
 selected_page = st.sidebar.radio("Bienvenue chez Adopte1Arbre", page_names_to_funcs.keys())
 page_names_to_funcs[selected_page]()
