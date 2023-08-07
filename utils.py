@@ -74,7 +74,6 @@ def distance(origin, destination):
     """
     lat1, lon1 = origin
     lat2, lon2 = destination
-    print(lat1, lon1, lat2, lon2)
     lat1=float(lat1)
     lon1=float(lon1)
     lat2=float(lat2)
