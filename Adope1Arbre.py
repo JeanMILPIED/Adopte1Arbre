@@ -54,12 +54,27 @@ def page_Adopte():
     col1, _, col2=st.columns([10,1,10])
 
     col1.subheader('Quel arbre adopter ?')
+    
+    df_arbre_select=df_arbre.copy()
+    ma_date=col1.text_input("Votre date d'anniversaire Jour Mois (exemple: 20/06)",value="", max_chars=None, key=None, type="default",
+                              help=None, autocomplete=None, on_change=None)
+    if ma_date!="":
+        mon_mois=ma_date.split("/")[1]
+        mon_jour=ma_date.split("/")[0]
+        print(mon_mois,mon_jour)
+        df_arbre_select_anniv=df_arbre_select[(df_arbre_select.loc[:,"mois_plantation"]==int(mon_mois)) & (df_arbre_select.loc[:,"jour_plantation"]==int(mon_jour))]
+        if df_arbre_select_anniv.shape[0]>0:
+            col1.write("Il y a {} arbres plantés le même jour que vous".format(df_arbre_select_anniv.shape[0]))
+            df_arbre_select=df_arbre_select_anniv
+        else:
+            col1.write("Ah mince, aucun arbre n'a été planté votre jour de naissance")
+
     options_taille = col1.multiselect(
         'Quelle taille ?', df_arbre.classeTaille.unique().tolist())
 
     options_rare=col1.multiselect('Quelle rareté ?', df_arbre.rareOupas.unique().tolist())
 
-    df_arbre_select=df_arbre.copy()
+
     for select_taille in options_taille:
         if select_taille!="":
             df_arbre_select=df_arbre_select[df_arbre_select.loc[:,"classeTaille"]==select_taille].dropna(subset=["Arbre Essence - Nom français"], axis=0)
@@ -228,7 +243,7 @@ def page_Decouvrir():
     st.write("il y a {} arbres plantés à ce jour".format(df_arbre.shape[0]))
 
     col1,col2=st.columns(2)
-    col1.write("- Le détail par arrondissements -")
+    col1.write("- Le détail par arrondissements de Paris-")
     col1.dataframe(df_arbre["Emplacement - Arrondissement"].value_counts())
     col2.write("- Le détail par essences -")
     col2.dataframe(df_arbre["Arbre Essence - Nom français"].value_counts())
