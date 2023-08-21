@@ -23,8 +23,6 @@ from utils import *
 if not hasattr(Image, 'Resampling'):  # Pillow<9.0
     Image.Resampling = Image
 
-
-
 def page_Adopte():
     #optimiseur de choix d'exutoire
     col1, _, col2 = st.columns([5,1,2])
@@ -37,14 +35,16 @@ def page_Adopte():
     df_arbre=pd.read_csv('les-arbres-plantes-clean.csv', sep=';')
     df_arbre["Arbre Essence - Nom français"].fillna("non précisé", inplace=True)
 
-    st.write("{} arbres plantés à ce jour dans Paris".format(df_arbre.shape[0]))
+    st.write("Il y a {} arbres plantés à ce jour dans Paris (depuis le 1er novembre 2021)".format(df_arbre.shape[0]))
 
     now = datetime.datetime.utcnow()
     result = now + timedelta(hours=2)
     date_heure = result.strftime("%d/%m/%Y %H:%M:%S")
     st.text("Date et heure : " + date_heure)
 
-    yourAdress = st.text_input("Renseigne une adresse (dans Paris)", value="", max_chars=None, key=None, type="default",
+    col1, _, col2=st.columns([10,1,10])
+
+    yourAdress = col1.text_input("Renseigne une adresse (dans Paris) et découvre la forêt près de chez toi", value="", max_chars=None, key=None, type="default",
                               help=None, autocomplete=None, on_change=None)
 
     if yourAdress != "":
@@ -52,6 +52,7 @@ def page_Adopte():
         st.write("l'adresse identifiée pour votre chantier est " + finalAdress)
     else:
         gps_position=[48.855397247540466, 2.346641058380128]
+    
     col1, _, col2=st.columns([10,1,10])
 
     col1.subheader('Quel arbre adopter ?')
@@ -247,7 +248,7 @@ def page_Decouvrir():
     col2.header("🌳 DECOUVRE 🌲")
     st.subheader("🌳 Découvre les arbres de Paris 🌲")
     df_arbre = pd.read_csv('les-arbres-plantes-clean.csv', sep=';').dropna(subset=["Arbre Essence - Nom français"],axis=0)
-    st.write("il y a {} arbres plantés à ce jour".format(df_arbre.shape[0]))
+    st.write("Il y a {} arbres plantés à ce jour dans Paris (depuis le 1er novembre 2021)".format(df_arbre.shape[0]))
 
     col1,col2=st.columns(2)
     col1.write("- Le détail par arrondissements de Paris-")
