@@ -52,7 +52,7 @@ def page_Adopte():
         st.write("l'adresse identifiée pour votre chantier est " + finalAdress)
     else:
         gps_position=[48.855397247540466, 2.346641058380128]
-    
+
     col1, _, col2=st.columns([10,1,10])
 
     col1.subheader('Quel arbre adopter ?')
