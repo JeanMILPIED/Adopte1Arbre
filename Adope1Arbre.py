@@ -49,7 +49,16 @@ def page_Adopte():
 
     if yourAdress != "":
         finalAdress, gps_position = GPS_from_Adress(yourAdress)
-        st.write("l'adresse identifiée pour votre chantier est " + finalAdress)
+        col1.write("🏡 l'adresse identifiée est " + finalAdress)
+        if gps_position != []:
+            df_arbre["distance_a_position"] = \
+                [distance([gps_position[0], gps_position[1]],
+                          [df_arbre["lat"].iloc[i], df_arbre["lon"].iloc[i]]) for i in
+                 range(df_arbre.shape[0])]
+            for select_dist in [0.1,0.5,1,5]:
+                df_arbre_select_moinsde=df_arbre[df_arbre.distance_a_position <= select_dist].shape[0]
+                if df_arbre_select_moinsde>0:
+                    col2.write("{} arbres à moins de {}km".format(df_arbre_select_moinsde,select_dist))
     else:
         gps_position=[48.855397247540466, 2.346641058380128]
 
@@ -94,153 +103,35 @@ def page_Adopte():
     if (df_arbre_select.shape[0] > 0) and (options_rare != [] and options_essence != [] and options_taille != []) and gps_position != []:
         col2.subheader("Où sont-ils ? 🔍")
         # we compute distance to the chantier
-        if gps_position != []:
-            df_arbre_select["distance_a_position"] = \
-                [distance([gps_position[0], gps_position[1]],
-                          [df_arbre_select["lat"].iloc[i], df_arbre_select["lon"].iloc[i]]) for i in
-                 range(df_arbre_select.shape[0])]
-            for select_dist in [0.1,0.5,1,5]:
-                df_arbre_select_moinsde=df_arbre_select[df_arbre_select.distance_a_position <= select_dist].shape[0]
-                if df_arbre_select_moinsde>0:
-                    col2.write("{} à moins de {}km".format(df_arbre_select_moinsde,select_dist))
-            col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
-            df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
 
-            col2.write("Voir la carte pour le détail des positions et faire ton choix")
+        col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
+        df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
 
-    #
-    #         # les autres critères
-    #         options_day = col2.multiselect('Quel jour souhaitez-vous évacuer vos matériaux ?',
-    #                                        ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'])
-    #         for select_day in options_day:
-    #             df_exut_select = df_exut_select[df_exut_select.loc[:, select_day].str.contains("fermé") == False]
-    #
-    #         if options_day != []:
-    #             col3, col4 = col2.columns(2)
-    #             options_morning = col3.multiselect('à partir de quelle heure ?', ['indifférent', '6h', '7h', '8h'])
-    #             for select_morning in options_morning:
-    #                 if select_morning != "indifférent":
-    #                     for select_day in options_day:
-    #                         df_exut_select["{}_opening_hour".format(select_day)] = [
-    #                             df_exut_select[select_day].iloc[i][:1] for i in range(df_exut_select.shape[0])]
-    #                         if select_morning == '6h':
-    #                             df_exut_select = df_exut_select[
-    #                                 df_exut_select["{}_opening_hour".format(select_day)].astype(str) <= '6']
-    #                         if select_morning == '7h':
-    #                             df_exut_select = df_exut_select[
-    #                                 df_exut_select["{}_opening_hour".format(select_day)].astype(str) <= '7']
-    #                         if select_morning == '8h':
-    #                             df_exut_select = df_exut_select[
-    #                                 df_exut_select["{}_opening_hour".format(select_day)].astype(str) <= '8']
-    #
-    #             options_afternoon = col4.multiselect("jusqu'à quelle heure ?", ['indifférent', '16h', '17h', '18h'])
-    #             for select_afternoon in options_afternoon:
-    #                 if select_afternoon != "indifférent":
-    #                     for select_day in options_day:
-    #                         df_exut_select["{}_closing_hour".format(select_day)] = [
-    #                             df_exut_select[select_day].iloc[i][-5:]
-    #                             for i in range(df_exut_select.shape[0])]
-    #                         if select_afternoon == '18h':
-    #                             df_exut_select = df_exut_select[
-    #                                 df_exut_select["{}_closing_hour".format(select_day)].str.contains("18h")]
-    #                         if select_afternoon == '17h':
-    #                             df_exut_select = df_exut_select[
-    #                                 ((df_exut_select["{}_closing_hour".format(select_day)].str.contains("17h")) |
-    #                                  (df_exut_select["{}_closing_hour".format(select_day)].str.contains("18h")))]
-    #                         if select_afternoon == '16h':
-    #                             df_exut_select = df_exut_select[
-    #                                 ((df_exut_select["{}_closing_hour".format(select_day)].str.contains("16h")) |
-    #                                  (df_exut_select["{}_closing_hour".format(select_day)].str.contains("17h")) |
-    #                                  (df_exut_select["{}_closing_hour".format(select_day)].str.contains("18h")))]
-    #
-    #         st.write("Il y a au moins {} points de reprise de déchets qui matchent vos critères".format(
-    #             df_exut_select.shape[0]))
-    #
-    #         filter_words = st.text_input(
-    #             "👉 Entrer des mots clés pour affiner vos critères de recherche (séparés par des ;)")
-    #         if filter_words != "":
-    #             df_exut_select["titre_ok"] = [myTitre.upper().strip() for myTitre in df_exut_select["titre"].tolist()]
-    #             filter_words_list = filter_words.split(";")
-    #             list_df_filter = []
-    #             for my_filter_word in filter_words_list:
-    #                 list_df_filter.append(
-    #                     df_exut_select[df_exut_select.titre_ok.str.contains(my_filter_word.upper().strip())])
-    #             df_exut_select = pd.concat(list_df_filter, axis=0)
-    #
-    #         st.subheader("Les 10 Meilleurs Points de Reprise - multicritères")
-    #         if df_exut_select.shape[0] > 0:
-    #             df_exut_select_10 = df_exut_select.sort_values(by="distance_au_chantier").iloc[:10, :].reset_index(
-    #                 drop=True)
-    #             # we compute distance_osrm
-    #             distance_osrm_results = [distance_osrm([gps_chantier[0], gps_chantier[1]],
-    #                                                    [df_exut_select_10.lat.iloc[i], df_exut_select_10.long.iloc[i]])[
-    #                                      :2] for i in
-    #                                      range(df_exut_select_10.shape[0])]
-    #             df_exut_select_10["distance_km_reel"] = [my_val[0] for my_val in distance_osrm_results]
-    #             df_exut_select_10["temps_min"] = [round(my_val[1] / 60, 1) for my_val in distance_osrm_results]
-    #             n_10min = df_exut_select_10[df_exut_select_10.temps_min <= 10].shape[0]
-    #             n_30min = df_exut_select_10[df_exut_select_10.temps_min <= 30].shape[0]
-    #             if n_10min > 0:
-    #                 st.write("Nous avons identifié {} Points de Reprise à moins de 10 minutes de route".format(n_10min))
-    #             elif n_30min > 0:
-    #                 st.write("Nous avons identifié {} Points de Reprise à moins de 30 minutes de route".format(n_30min))
-    #             else:
-    #                 st.write("Les Points de Reprise identifiés sont à plus de 30 minutes de route")
-    #
-    #             # TODO: à vérifier
-    #             dict_FE_mat_kgCO2t = {'Toutes les matières': {'Recy': 12, 'Stock': 33, 'REvi': 2.6},
-    #                                   'terres': {'Recy': 12, 'Stock': 33, 'REvi': 2.6},
-    #                                   'cailloux': {'Recy': 12, 'Stock': 33, 'REvi': 2.6},
-    #                                   'betons': {"Recy": 24.8, "Stock": 33, "REvi": 52.9},
-    #                                   'melanges bitumineux': {'Recy': 12, 'Stock': 33, 'REvi': 2.6},
-    #                                   'melanges terres et cailloux': {'Recy': 12, 'Stock': 33, 'REvi': 2.6},
-    #                                   'autres dechets de construction et de demolition': {'Recy': 12, 'Stock': 33,
-    #                                                                                       'REvi': 2.6}}
-    #             dict_FE_truck_kgCO2etkm = {"FEmoy2e": 0.16, "FEmoy5e": 0.0711, "FEmoy4e": 0.105}
-    #             df_exut_select_10 = compute_co2_exut(df_exut_select_10, dict_FE_truck_kgCO2etkm, dict_FE_mat_kgCO2t,
-    #                                                  options_mat, options_type)
-    #             df_exut_select_10 = compute_best(df_exut_select_10)
-    #             st.dataframe(df_exut_select_10[['titre', "+ proche(min)", "- CO2e-Trans",
-    #                                             "- CO2e-Valo", "+ CO2e-Evit", 'adresse',
-    #                                             'code_postal', "distance_km_reel", "temps_min", 'CO2e_transp_2e_25t',
-    #                                             'CO2e_transp_4e_25t', 'CO2e_transp_5e_25t', "nbr_pass_2e",
-    #                                             "nbr_pass_4e", "CO2e_mat_Recy", "CO2e_mat_Stock", "CO2e_mat_Final",
-    #                                             "CO2e_mat_Evi",
-    #                                             "nbr_pass_5e", "count_stars"] + [my_day for my_day in
-    #                                                                              options_day]].sort_values(
-    #                 by="count_stars", ascending=False).reset_index(drop=True).iloc[:10, :])
-    #             st.caption(
-    #                 "Calculs CO2e effectués pour 25t de matière choisie à évacuer dans un camions 5 essieux => 1 seul trajet")
-    #
-            st.subheader("La Carte des 🌳")
-            st.write("Zoom et clique sur l'arbre que tu veux, et note son numéro")
-            col1, col2=st.columns(2)
-            mon_nbr_arbre=col1.text_input("Le numéro d'arbre choisi", value="", max_chars=None, key=None, type="default",
-                              help=None, autocomplete=None, on_change=None)
-            map = create_map_opti(df_arbre_select, gps_position)
-            folium_static(map)
+        col2.write("Voir la carte pour le détail des positions et faire ton choix")
 
-            if mon_nbr_arbre!="":
-                mon_nbr_arbre=int(mon_nbr_arbre)
-                mon_arbre=df_arbre_select[df_arbre_select["Emplacement - Identifiant unique"]==mon_nbr_arbre]
-                if mon_arbre.shape[0]>0:
-                    col2.write("Voici l'adresse de votre arbre")
-                    mon_arbre_adresse="{}, {} ({})".format(mon_arbre["Emplacement - Complément d'adresse"].iloc[0],mon_arbre["Emplacement - Site / Adresse"].iloc[0], mon_arbre["Emplacement - Arrondissement"].iloc[0])
-                    col2.subheader(mon_arbre_adresse)
-                    col2.write("Voici sa fiche d'identité")
-                    mon_arbre_id="{}, planté le {}, c'est un arbre {} et {}".format(mon_arbre["Arbre Essence - Nom français"].iloc[0],
-                                                                                    mon_arbre["Arbre Exploitation - Planté le"].iloc[0][:10],
-                                                                                    mon_arbre["rareOupas"].iloc[0],
-                                                                                    mon_arbre["classeTaille"].iloc[0])
-                    col2.subheader(mon_arbre_id)
-                else:
-                    col2.write("Numéro d'arbre à vérifier")
-    #         else:
-    #             st.write("Aucun Point de Reprise correspondant à vos critères. Elargissez votre recherche")
-    #     else:
-    #         st.write("Merci de renseigner une adresse pour le chantier")
-    # else:
-    #     st.write("Aucun Point de Reprise correspondant à vos critères. Elargissez votre recherche")
+        st.subheader("La Carte des 🌳")
+        st.write("Zoom et clique sur l'arbre que tu veux, et note son numéro pour tout savoir de lui")
+
+        mon_nbr_arbre=st.text_input("Le numéro d'arbre choisi", value="", max_chars=None, key=None, type="default",
+                          help=None, autocomplete=None, on_change=None)
+        map = create_map_opti(df_arbre_select, gps_position)
+        folium_static(map)
+        col1, col2=st.columns(2)
+        if mon_nbr_arbre!="":
+            mon_nbr_arbre=int(mon_nbr_arbre)
+            mon_arbre=df_arbre_select[df_arbre_select["Emplacement - Identifiant unique"]==mon_nbr_arbre]
+            if mon_arbre.shape[0]>0:
+                col1.write("Voici l'adresse de votre arbre")
+                mon_arbre_adresse="{}, {} ({})".format(mon_arbre["Emplacement - Complément d'adresse"].iloc[0],mon_arbre["Emplacement - Site / Adresse"].iloc[0], mon_arbre["Emplacement - Arrondissement"].iloc[0])
+                col1.subheader(mon_arbre_adresse)
+                col2.write("Voici sa fiche d'identité")
+                mon_arbre_id="{}, planté le {}, c'est un arbre {} et {}".format(mon_arbre["Arbre Essence - Nom français"].iloc[0],
+                                                                                mon_arbre["Arbre Exploitation - Planté le"].iloc[0][:10],
+                                                                                mon_arbre["rareOupas"].iloc[0],
+                                                                                mon_arbre["classeTaille"].iloc[0])
+                col2.subheader(mon_arbre_id)
+            else:
+                col2.write("Numéro d'arbre à vérifier")
 
 def page_Decouvrir():
     col1, _, col2 = st.columns([5, 1, 2])
