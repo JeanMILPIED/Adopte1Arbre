@@ -100,7 +100,7 @@ def page_Adopte():
 
     st.write("{} arbres correspondent aux critères".format(df_arbre_select.shape[0]))
 
-    if (df_arbre_select.shape[0] > 0) and (options_rare != [] and options_essence != [] and options_taille != []) and gps_position != []:
+    if (df_arbre_select.shape[0] > 0) and gps_position != []:
         col2.subheader("Où sont-ils ? 🔍")
         # we compute distance to the chantier
 
