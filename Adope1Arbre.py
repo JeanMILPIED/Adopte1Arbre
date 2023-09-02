@@ -103,35 +103,37 @@ def page_Adopte():
     if (df_arbre_select.shape[0] > 0) and gps_position != []:
         col2.subheader("Où sont-ils ? 🔍")
         # we compute distance to the chantier
+        try:
+            col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
+            df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
 
-        col2.write("Le plus proche est à {}km".format(np.round(df_arbre_select.distance_a_position.min(),2)))
-        df_arbre_select = df_arbre_select.sort_values(by='distance_a_position').iloc[:100, :]
+            col2.write("Voir la carte pour le détail des positions et faire ton choix")
 
-        col2.write("Voir la carte pour le détail des positions et faire ton choix")
+            st.subheader("La Carte des 🌳")
+            st.write("Zoom et clique sur l'arbre que tu veux, et note son numéro pour tout savoir de lui")
 
-        st.subheader("La Carte des 🌳")
-        st.write("Zoom et clique sur l'arbre que tu veux, et note son numéro pour tout savoir de lui")
-
-        mon_nbr_arbre=st.text_input("Le numéro d'arbre choisi", value="", max_chars=None, key=None, type="default",
-                          help=None, autocomplete=None, on_change=None)
-        map = create_map_opti(df_arbre_select, gps_position)
-        folium_static(map)
-        col1, col2=st.columns(2)
-        if mon_nbr_arbre!="":
-            mon_nbr_arbre=int(mon_nbr_arbre)
-            mon_arbre=df_arbre_select[df_arbre_select["Emplacement - Identifiant unique"]==mon_nbr_arbre]
-            if mon_arbre.shape[0]>0:
-                col1.write("Voici l'adresse de votre arbre")
-                mon_arbre_adresse="{}, {} ({})".format(mon_arbre["Emplacement - Complément d'adresse"].iloc[0],mon_arbre["Emplacement - Site / Adresse"].iloc[0], mon_arbre["Emplacement - Arrondissement"].iloc[0])
-                col1.subheader(mon_arbre_adresse)
-                col2.write("Voici sa fiche d'identité")
-                mon_arbre_id="{}, planté le {}, c'est un arbre {} et {}".format(mon_arbre["Arbre Essence - Nom français"].iloc[0],
-                                                                                mon_arbre["Arbre Exploitation - Planté le"].iloc[0][:10],
-                                                                                mon_arbre["rareOupas"].iloc[0],
-                                                                                mon_arbre["classeTaille"].iloc[0])
-                col2.subheader(mon_arbre_id)
-            else:
-                col2.write("Numéro d'arbre à vérifier")
+            mon_nbr_arbre=st.text_input("Le numéro d'arbre choisi", value="", max_chars=None, key=None, type="default",
+                              help=None, autocomplete=None, on_change=None)
+            map = create_map_opti(df_arbre_select, gps_position)
+            folium_static(map)
+            col1, col2=st.columns(2)
+            if mon_nbr_arbre!="":
+                mon_nbr_arbre=int(mon_nbr_arbre)
+                mon_arbre=df_arbre_select[df_arbre_select["Emplacement - Identifiant unique"]==mon_nbr_arbre]
+                if mon_arbre.shape[0]>0:
+                    col1.write("Voici l'adresse de votre arbre")
+                    mon_arbre_adresse="{}, {} ({})".format(mon_arbre["Emplacement - Complément d'adresse"].iloc[0],mon_arbre["Emplacement - Site / Adresse"].iloc[0], mon_arbre["Emplacement - Arrondissement"].iloc[0])
+                    col1.subheader(mon_arbre_adresse)
+                    col2.write("Voici sa fiche d'identité")
+                    mon_arbre_id="{}, planté le {}, c'est un arbre {} et {}".format(mon_arbre["Arbre Essence - Nom français"].iloc[0],
+                                                                                    mon_arbre["Arbre Exploitation - Planté le"].iloc[0][:10],
+                                                                                    mon_arbre["rareOupas"].iloc[0],
+                                                                                    mon_arbre["classeTaille"].iloc[0])
+                    col2.subheader(mon_arbre_id)
+                else:
+                    col2.write("Numéro d'arbre à vérifier")
+        except:
+            st.write("Renseigne ton adresse stp")
 
 def page_Decouvrir():
     col1, _, col2 = st.columns([5, 1, 2])
